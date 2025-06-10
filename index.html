@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepChain Explorer</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
+    h1 { color: #333; }
+    .block { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .block h3 { margin: 0; color: #007bff; }
+    .tx { margin-left: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🚀 DeepChain Blockchain Explorer</h1>
+  <p>Enter your Flask Server IP:</p>
+  <input type="text" id="serverIP" placeholder="e.g., 192.168.1.113" />
+  <button onclick="loadChain()">Load Blockchain</button>
+  <div id="chain"></div>  <script>
+    async function loadChain() {
+      const ip = document.getElementById("serverIP").value;
+      const url = `http://${ip}:5000/get_chain`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const chainDiv = document.getElementById("chain");
+        chainDiv.innerHTML = "";
+
+        data.chain.forEach(block => {
+          const blockEl = document.createElement("div");
+          blockEl.className = "block";
+          blockEl.innerHTML = `<h3>📦 Block #${block.index}</h3>
+            <p><strong>Timestamp:</strong> ${block.timestamp}</p>
+            <p><strong>Proof:</strong> ${block.proof}</p>
+            <p><strong>Prev Hash:</strong> ${block.previous_hash}</p>
+            <p><strong>Transactions:</strong></p>`;
+
+          block.transactions.forEach(tx => {
+            const txEl = document.createElement("div");
+            txEl.className = "tx";
+            txEl.innerText = `🔁 ${tx.sender} → ${tx.receiver} 💰 ${tx.amount}`;
+            blockEl.appendChild(txEl);
+          });
+
+          chainDiv.appendChild(blockEl);
+        });
+      } catch (err) {
+        alert("❌ Error connecting to Flask Server: " + err);
+      }
+    }
+  </script></body>
+</html>
